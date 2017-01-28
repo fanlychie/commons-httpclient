@@ -60,9 +60,9 @@ public class HttpUriRequest extends HttpClientRequest {
     protected void preHandle(HttpRequestBase request) throws Exception {
         if (uriBuilder.getQueryParams().size() > 0) {
             request.setURI(uriBuilder.setPath(request.getURI().toString()).build());
-            if (log.isDebugEnabled()) {
-                log.debug(request.toString());
-            }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug(request.toString());
         }
     }
 
