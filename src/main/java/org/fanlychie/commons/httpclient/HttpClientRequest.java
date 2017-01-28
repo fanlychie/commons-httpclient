@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -105,22 +106,33 @@ public abstract class HttpClientRequest {
             // 状态码
             int statusCode = response.getStatusLine().getStatusCode();
             // 响应内容
-            StringBuilder responseText = new StringBuilder();
-            // 响应内容读取对象
-            Reader reader = new InputStreamReader(response.getEntity().getContent(), contentEncoding);
-            // 读取响应内容
-            try (BufferedReader bufferedReader = new BufferedReader(reader)) {
-                String line = null;
-                while ((line = bufferedReader.readLine()) != null) {
-                    responseText.append(line);
+            String responseText = null;
+            // 请求失败
+            if (statusCode != HttpStatus.SC_OK) {
+                // 尝试获取友好的提示消息内容
+                responseText = getSimpleResponseText(statusCode);
+            }
+            // 处理响应内容
+            if (responseText == null) {
+                // 响应内容
+                StringBuilder responseTextBuilder = new StringBuilder();
+                // 响应内容读取对象
+                Reader reader = new InputStreamReader(response.getEntity().getContent(), contentEncoding);
+                // 读取响应内容
+                try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+                    String line = null;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        responseTextBuilder.append(line);
+                    }
                 }
+                responseText = responseTextBuilder.toString();
             }
             if (log.isDebugEnabled()) {
                 log.debug("statusCode: " + statusCode + ", responseText: " + responseText);
             }
             if (consumer != null) {
                 // Consumer
-                consumer.accept(statusCode, responseText.toString());
+                consumer.accept(statusCode, responseText);
             }
         } catch (Exception e) {
             throw new RuntimeCastException(e);
@@ -256,6 +268,41 @@ public abstract class HttpClientRequest {
                     }).build()));
         }
         return clientBuilder.build();
+    }
+
+    /**
+     * 简易的响应内容
+     *
+     * @param statusCode 状态码值
+     * @return 返回简易易懂的的文本内容
+     */
+    private String getSimpleResponseText(int statusCode) {
+        switch (statusCode) {
+            // Bad Request
+            case HttpStatus.SC_BAD_REQUEST:
+                return "400 Bad Request - 语义有误，服务器无法理解请求。";
+            // Forbidden
+            case HttpStatus.SC_FORBIDDEN:
+                return "403 Forbidden - 没有权限，服务器拒绝处理请求。";
+            // Not Found
+            case HttpStatus.SC_NOT_FOUND:
+                return "404 Not Found - 请求的资源在服务器端未被发现。";
+            // Method Not Allowed
+            case HttpStatus.SC_METHOD_NOT_ALLOWED:
+                return "405 Method Not Allowed - 请求的资源中指定的方法被禁用。";
+            // Unsupported Media Type
+            case HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE:
+                return "415 Unsupported Media Type - 不支持的媒体类型，请检查Content-Type是否正确。";
+            // Internal Server Error
+            case HttpStatus.SC_INTERNAL_SERVER_ERROR:
+                return "500 Internal Server Error - 服务器端处理请求发生错误。";
+            // Service Unavailable
+            case HttpStatus.SC_SERVICE_UNAVAILABLE:
+                return "503 Service Unavailable - 服务器正在维护或负载过重未能应答。";
+            // Others
+            default:
+                return null;
+        }
     }
 
 }
