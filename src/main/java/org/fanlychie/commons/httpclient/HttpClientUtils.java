@@ -34,8 +34,18 @@ public final class HttpClientUtils {
      * @param url 请求地址
      * @return 返回一个 HTTP 表单请求对象
      */
-    public static HttpFormRequest put(String url) {
-        return new HttpFormRequest(new HttpPut(url));
+    public static HttpUrlencodedFormRequest put(String url) {
+        return new HttpUrlencodedFormRequest(new HttpPut(url));
+    }
+
+    /**
+     * 支持文件上传的 HTTP PUT 请求
+     *
+     * @param url 请求地址
+     * @return 返回一个支持文件上传的 HTTP 表单请求对象
+     */
+    public static HttpMultipartFormRequest putMultipartForm(String url) {
+        return new HttpMultipartFormRequest(new HttpPut(url));
     }
 
     /**
@@ -44,8 +54,18 @@ public final class HttpClientUtils {
      * @param url 请求地址
      * @return 返回一个 HTTP 表单请求对象
      */
-    public static HttpFormRequest post(String url) {
-        return new HttpFormRequest(new HttpPost(url));
+    public static HttpUrlencodedFormRequest post(String url) {
+        return new HttpUrlencodedFormRequest(new HttpPost(url));
+    }
+
+    /**
+     * 支持文件上传的 HTTP POST 请求
+     *
+     * @param url 请求地址
+     * @return 返回一个支持文件上传的 HTTP 表单请求对象
+     */
+    public static HttpMultipartFormRequest postMultipartForm(String url) {
+        return new HttpMultipartFormRequest(new HttpPost(url));
     }
 
     /**
