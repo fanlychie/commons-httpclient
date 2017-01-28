@@ -29,7 +29,7 @@ public final class HttpClientUtils {
     }
 
     /**
-     * HTTP PUT 请求
+     * 普通表单 HTTP PUT 请求
      *
      * @param url 请求地址
      * @return 返回一个 HTTP 表单请求对象
@@ -49,7 +49,7 @@ public final class HttpClientUtils {
     }
 
     /**
-     * HTTP POST 请求
+     * 普通表单 HTTP POST 请求
      *
      * @param url 请求地址
      * @return 返回一个 HTTP 表单请求对象
