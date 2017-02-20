@@ -70,6 +70,29 @@ public class HttpUrlencodedFormRequest extends HttpClientRequest {
     }
 
     /**
+     * 添加 XML 请求参数
+     *
+     * @param content XML 内容
+     * @return HttpUrlencodedFormRequest
+     */
+    public HttpUrlencodedFormRequest addXMLParameter(String content) {
+        builder.setContentType(ContentTypeConstant.APPLICATION_XML);
+        builder.setText(content);
+        return this;
+    }
+
+    /**
+     * 添加请求参数
+     *
+     * @param content 文本内容
+     * @return HttpUrlencodedFormRequest
+     */
+    public HttpUrlencodedFormRequest addParameter(String content) {
+        builder.setText(content);
+        return this;
+    }
+
+    /**
      * 发起请求前的处理工作
      *
      * @param request HttpRequestBase
