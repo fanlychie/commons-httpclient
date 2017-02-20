@@ -24,4 +24,9 @@ public interface ContentTypeConstant {
      */
     ContentType APPLICATION_FORM_URLENCODED = ContentType.create("application/x-www-form-urlencoded", Consts.UTF_8);
 
+    /**
+     * application/xml utf-8 content type
+     */
+    ContentType APPLICATION_XML = ContentType.create("application/xml", Consts.UTF_8);
+
 }
