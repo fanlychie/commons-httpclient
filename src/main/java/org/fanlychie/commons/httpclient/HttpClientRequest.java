@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -69,6 +70,8 @@ public abstract class HttpClientRequest {
      * 响应内容编码
      */
     private String contentEncoding = "UTF-8";
+
+    private LayeredConnectionSocketFactory sslSocketFactory;
 
     /**
      * 日志
@@ -234,6 +237,11 @@ public abstract class HttpClientRequest {
         return this;
     }
 
+    public HttpClientRequest setSSLSocketFactory(LayeredConnectionSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
+    }
+
     /**
      * 构建 HTTP 客户端对象
      *
@@ -259,13 +267,16 @@ public abstract class HttpClientRequest {
                 .setRetryHandler(new StandardHttpRequestRetryHandler(retryTimes, true));
         // 是否使用SSL协议链接
         if (request.getURI().getScheme().equalsIgnoreCase("https")) {
-            clientBuilder.setSSLSocketFactory(new SSLConnectionSocketFactory(
-                    new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                        // 信任所有
-                        public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                            return true;
-                        }
-                    }).build()));
+            if (sslSocketFactory == null) {
+                sslSocketFactory = new SSLConnectionSocketFactory(
+                        new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                            // 信任所有
+                            public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                                return true;
+                            }
+                        }).build());
+            }
+            clientBuilder.setSSLSocketFactory(sslSocketFactory);
         }
         return clientBuilder.build();
     }
