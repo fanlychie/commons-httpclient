@@ -46,7 +46,9 @@ public class HttpUriRequest extends HttpClientRequest {
      * @return HttpUriRequest
      */
     public HttpUriRequest addParameters(Map nameValues) {
-        nameValues.forEach((k, v) -> addParameter(k.toString(), v.toString()));
+        for (Object key : nameValues.keySet()) {
+            addParameter(key.toString(), nameValues.get(key).toString());
+        }
         return this;
     }
 

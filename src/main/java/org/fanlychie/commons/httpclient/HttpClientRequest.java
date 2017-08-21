@@ -23,7 +23,6 @@ import java.io.Reader;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 /**
  * HTTP 客户端请求基类
@@ -97,10 +96,8 @@ public abstract class HttpClientRequest {
 
     /**
      * 执行请求
-     *
-     * @param consumer (请求结果的状态码, 请求结果的文本内容)
      */
-    public void execute(BiConsumer<Integer, String> consumer) {
+    public ResponseEntity execute() {
         try (CloseableHttpClient client = buildHttpClient()) {
             // 发起请求前的处理工作
             preHandle(request);
@@ -133,10 +130,7 @@ public abstract class HttpClientRequest {
             if (log.isDebugEnabled()) {
                 log.debug("statusCode: " + statusCode + ", responseText: " + responseText);
             }
-            if (consumer != null) {
-                // Consumer
-                consumer.accept(statusCode, responseText);
-            }
+            return new ResponseEntity(statusCode, responseText);
         } catch (Exception e) {
             throw new RuntimeCastException(e);
         }
@@ -161,7 +155,9 @@ public abstract class HttpClientRequest {
      * @return HttpClientRequest
      */
     public HttpClientRequest addHeaders(Map headers) {
-        headers.forEach((k, v) -> request.addHeader(k.toString(), v.toString()));
+        for (Object key : headers.keySet()) {
+            request.addHeader(key.toString(), headers.get(key).toString());
+        }
         return this;
     }
 
